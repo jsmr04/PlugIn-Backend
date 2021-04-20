@@ -1,14 +1,40 @@
 const express = require("express");
 const Post = require("../models/Post");
 const PostComment = require("../models/PostComment");
+const User = require("../models/User");
 
 const router = express.Router();
 
 /* POSTS */
-router.get("/", (req, res) => {
-    Post.find()
-    .exec()
-    .then((x) => res.status(200).send(x));
+router.get("/", async (req, res) => {
+    const posts = await Post.find().exec()
+    const userIds = posts.map(post => post.userId)
+    const users = await User.find({ _id: { $in: userIds }}).exec()
+
+    let postsWithUserList = [] 
+    
+    posts.forEach(x => { 
+        const user = users.filter(u => u._id.toString() === x.userId.toString())[0]
+
+        if (user){
+            const postsWithUser = {
+                _id: x._id,
+                userId: x.userId,
+                media: x.media,
+                description: x.description,
+                createdAt: x.createdAt,
+                updatedAt: x.updatedAt,
+                //User attributes
+                name: user.name,
+                pictureUrl: user.pictureUrl,
+            }
+            postsWithUserList.push(postsWithUser)
+
+        }
+    })
+
+    res.status(200).send(postsWithUserList)
+
 });
 
 router.get("/:id", (req, res) => {
