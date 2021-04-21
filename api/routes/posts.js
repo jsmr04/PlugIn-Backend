@@ -10,11 +10,13 @@ router.get("/", async (req, res) => {
     const posts = await Post.find().exec()
     const userIds = posts.map(post => post.userId)
     const users = await User.find({ _id: { $in: userIds }}).exec()
+    const comments = await PostComment.find().exec()
 
     let postsWithUserList = [] 
     
     posts.forEach(x => { 
         const user = users.filter(u => u._id.toString() === x.userId.toString())[0]
+        const commentPost = comments.filter(c => c.postId.toString() === x._id.toString()) 
 
         if (user){
             const postsWithUser = {
@@ -27,6 +29,8 @@ router.get("/", async (req, res) => {
                 //User attributes
                 name: user.name,
                 pictureUrl: user.pictureUrl,
+                //Comments 
+                commentsTotal: commentPost.length
             }
             postsWithUserList.push(postsWithUser)
 
