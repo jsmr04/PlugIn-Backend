@@ -128,7 +128,10 @@ router.get("/user-info/", (req, res) => {
         const newUser = {
           _id: user._id,
           username: user.username,
+          role: user.role,
           name: user.name,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
           title: user.title,
           address: user.address,
           status: user.status,
