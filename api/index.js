@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const Event = require('./models/Event')
+const User = require('./models/User')
 const { v2: cloudinary } = require("cloudinary");
 
 //Routes
@@ -31,12 +32,37 @@ app.use('/api/posts', posts)
 app.use('/api/ratings', ratings)
 app.use('/api/vacancies', vacancy)
 
-
 /* EVENTS */
-app.get("/api/events/", (req, res) => {
-    Event.find()
-    .exec()
-    .then((x) => res.status(200).send(x));
+app.get("/api/events/", async (req, res) => {    
+    const events = await Event.find().exec()
+    const userIds = events.map(event => event.userId)
+    const users = await User.find({ _id: { $in: userIds }}).exec()
+
+    let eventsWithUserList = [] 
+    
+    events.forEach(x => { 
+        const user = users.filter(u => u._id.toString() === x.userId.toString())[0]
+        if (user){
+            const eventWithUser = {
+                _id: x._id,
+                userId: x.userId,
+                title: x.title,
+                datetime: x.datetime,
+                location: x.location,
+                media: x.media,
+                description: x.description,
+                createdAt: x.createdAt,
+                updatedAt: x.updatedAt,
+                //User attributes
+                name: user.name,
+                pictureUrl: user.pictureUrl,
+            }
+            eventsWithUserList.push(eventWithUser)
+
+        }
+    })
+
+    res.status(200).send(eventsWithUserList)
 });
 
 app.get("/api/events/:id", (req, res) => {
