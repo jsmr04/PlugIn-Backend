@@ -72,10 +72,35 @@ router.post("/comments", (req, res) => {
   );
 });
 
-router.get("/comments-by-post/:postId", (req, res) => {
-    PostComment.find({ postId: req.params.postId })
-    .exec()
-    .then((x) => res.status(200).send(x));
+router.get("/comments-by-post/:postId",  async (req, res) => {
+    const postComments = await PostComment.find({ postId: req.params.postId })
+    const userIds = postComments.map(comment => comment.userId)
+    const users = await User.find({ _id: { $in: userIds }}).exec()
+
+    let commentsWithUserPicture = [] 
+    
+    postComments.forEach(x => { 
+        const user = users.filter(u => u._id.toString() === x.userId.toString())[0]
+
+        if (user){
+            const commentsWithUser = {
+                _id: x._id,
+                userId: x.userId,
+                comment: x.comment,
+                postId: x.postId,
+                createdAt: x.createdAt,
+                updatedAt: x.updatedAt,
+                //User attributes
+                name: user.name,
+                pictureUrl: user.pictureUrl,
+            }
+            commentsWithUserPicture.push(commentsWithUser)
+
+        }
+    })
+
+    res.status(200).send(commentsWithUserPicture)
+
 });
 
 router.get("/comments/:id", (req, res) => {
