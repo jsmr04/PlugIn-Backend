@@ -73,7 +73,7 @@ router.post("/signin", (req, res) => {
           //Validate encrypted password
           if (user.password === encryptedPassword) {
             const token = signToken(user._id);
-            return res.send({ _id:user._id, token });
+            return res.send({ _id:user._id, token, role:user.role });
           }else{
             return res.status(400).send("User and password do not match");
           }
