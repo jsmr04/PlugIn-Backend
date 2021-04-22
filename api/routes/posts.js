@@ -7,7 +7,7 @@ const router = express.Router();
 
 /* POSTS */
 router.get("/", async (req, res) => {
-    const posts = await Post.find().exec()
+    const posts = await Post.find().sort({createdAt: -1}).exec()
     const userIds = posts.map(post => post.userId)
     const users = await User.find({ _id: { $in: userIds }}).exec()
     const comments = await PostComment.find().exec()
@@ -33,10 +33,9 @@ router.get("/", async (req, res) => {
                 commentsTotal: commentPost.length
             }
             postsWithUserList.push(postsWithUser)
-
+            //console.log(x.createdAt)
         }
     })
-
     res.status(200).send(postsWithUserList)
 
 });
