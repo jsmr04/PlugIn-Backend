@@ -20,6 +20,12 @@ router.get("/", async (req, res) => {
         const commentPost = comments.filter(c => c.postId.toString() === x._id.toString()) 
 
         if (user){
+            let name;
+            if(user.title != ""){
+                name = user.title
+            } else {
+                name = user.name
+            }
             const postsWithUser = {
                 _id: x._id,
                 userId: x.userId,
@@ -28,7 +34,7 @@ router.get("/", async (req, res) => {
                 createdAt: x.createdAt,
                 updatedAt: x.updatedAt,
                 //User attributes
-                name: user.name,
+                name: name,
                 pictureUrl: user.pictureUrl,
                 //Comments 
                 commentsTotal: commentPost.length
