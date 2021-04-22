@@ -7,6 +7,7 @@ const router = express.Router();
 
 /* POSTS */
 router.get("/", async (req, res) => {
+    // post is returning an array sorting by date (Newest to the oldest) for backend Project. 
     const posts = await Post.find().sort({createdAt: -1}).exec()
     const userIds = posts.map(post => post.userId)
     const users = await User.find({ _id: { $in: userIds }}).exec()
