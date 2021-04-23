@@ -80,14 +80,17 @@ router.get("/applications-by-applicant/:applicantId", async (req, res) => {
 
     const applicantId = req.params.applicantId
     const applications = await VacancyApplication.find({ applicantId: applicantId }).exec()
-    const user = await User.findOne({ _id: applicantId}).exec()
+    const users = await User.find().exec()
 
-    console.log(applications)
-    console.log(user)
+    // console.log(applications)
+    console.log(users)
 
     let newApplicationList = [] 
     
     applications.forEach(x => { 
+        console.log(x)
+        const user = users.filter(u => u._id.toString() === x.bandId.toString())[0]
+        
         if (user){
             const application = {
                 _id: x._id,
@@ -115,14 +118,12 @@ router.get("/applications-by-band/:bandId", async (req, res) => {
 
     const bandId = req.params.bandId
     const applications = await VacancyApplication.find({ bandId: bandId }).exec()
-    const user = await User.findOne({ _id: bandId}).exec()
-
-    console.log(applications)
-    console.log(user)
-
+    const users = await User.find().exec()
+    
     let newApplicationList = [] 
     
     applications.forEach(x => { 
+        const user = users.filter(u => u._id.toString() === x.applicantId.toString())[0]
         if (user){
             const application = {
                 _id: x._id,
