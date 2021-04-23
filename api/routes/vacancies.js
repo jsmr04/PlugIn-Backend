@@ -64,6 +64,7 @@ router.delete("/:id", (req, res) => {
 
 /* VACANCY APPLICATIONS */
 router.post("/applications", (req, res) => {
+    console.log(req.body)
     VacancyApplication.create(req.body).then((x) =>
     res.status(200).send(x)
   );
@@ -73,6 +74,76 @@ router.get("/applications-by-vacancy/:vacancyId", (req, res) => {
     VacancyApplication.find({ vacancyId: req.params.vacancyId })
     .exec()
     .then((x) => res.status(200).send(x));
+});
+
+router.get("/applications-by-applicant/:applicantId", async (req, res) => {
+
+    const applicantId = req.params.applicantId
+    const applications = await VacancyApplication.find({ applicantId: applicantId }).exec()
+    const user = await User.findOne({ _id: applicantId}).exec()
+
+    console.log(applications)
+    console.log(user)
+
+    let newApplicationList = [] 
+    
+    applications.forEach(x => { 
+        if (user){
+            const application = {
+                _id: x._id,
+                vacancyId: x.vacancyId,
+                applicantId: x.applicantId,
+                bandId: x.bandId,
+                title: x.title,
+                status: x.status,
+                description: x.description,
+                attachments: x.attachments,
+                createdAt: x.createdAt,
+                updatedAt: x.updatedAt,
+                //User attributes
+                name: user.name,
+                pictureUrl: user.pictureUrl,
+            }
+            newApplicationList.push(application)
+            //console.log(x.createdAt)
+        }
+    })
+    res.status(200).send(newApplicationList)
+});
+
+router.get("/applications-by-band/:bandId", async (req, res) => {
+
+    const bandId = req.params.bandId
+    const applications = await VacancyApplication.find({ bandId: bandId }).exec()
+    const user = await User.findOne({ _id: bandId}).exec()
+
+    console.log(applications)
+    console.log(user)
+
+    let newApplicationList = [] 
+    
+    applications.forEach(x => { 
+        if (user){
+            const application = {
+                _id: x._id,
+                vacancyId: x.vacancyId,
+                bandId: x.bandId,
+                applicantId: x.applicantId,
+                title: x.title,
+                status: x.status,
+                description: x.description,
+                attachments: x.attachments,
+                createdAt: x.createdAt,
+                updatedAt: x.updatedAt,
+                //User attributes
+                name: user.name,
+                pictureUrl: user.pictureUrl,
+            }
+            newApplicationList.push(application)
+            //console.log(x.createdAt)
+        }
+    })
+    res.status(200).send(newApplicationList)
 });
 
 router.get("/applications/:id", (req, res) => {
